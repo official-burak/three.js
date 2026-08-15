@@ -19,9 +19,6 @@ import { Object3D } from '../core/Object3D.js';
  * scene.add( sun );
  * ```
  *
- * This light is only supported by `WebGLRenderer`. When using `WebGPURenderer`,
- * use {@link DirectionalLight} with `CSMShadowNode` instead.
- *
  * @augments Light
  */
 class SunLight extends Light {

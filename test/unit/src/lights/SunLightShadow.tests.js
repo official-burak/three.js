@@ -6,6 +6,7 @@ import { SunLight } from '../../../../src/lights/SunLight.js';
 import { PerspectiveCamera } from '../../../../src/cameras/PerspectiveCamera.js';
 import { OrthographicCamera } from '../../../../src/cameras/OrthographicCamera.js';
 import { Vector3 } from '../../../../src/math/Vector3.js';
+import { WebGLCoordinateSystem, WebGPUCoordinateSystem } from '../../../../src/constants.js';
 
 export default QUnit.module( 'Lights', () => {
 
@@ -128,36 +129,42 @@ export default QUnit.module( 'Lights', () => {
 
 		QUnit.test( 'cascade containment', ( assert ) => {
 
-			const light = new SunLight();
-			const camera = new PerspectiveCamera( 60, 1, 0.01, 0.1 );
-			const shadow = light.shadow;
-			light.position.setFromSphericalCoords( 1, Math.PI / 2 - 0.9, 0.7 );
-			light.updateMatrixWorld();
-			camera.updateMatrixWorld();
-			shadow.camera.far = 1;
-			shadow.updateMatrices( light, camera );
+			for ( const coordinateSystem of [ WebGLCoordinateSystem, WebGPUCoordinateSystem ] ) {
 
-			for ( let i = 0; i < 4; i ++ ) {
+				const light = new SunLight();
+				const camera = new PerspectiveCamera( 60, 1, 0.01, 0.1 );
+				const shadow = light.shadow;
+				light.position.setFromSphericalCoords( 1, Math.PI / 2 - 0.9, 0.7 );
+				light.updateMatrixWorld();
+				camera.coordinateSystem = coordinateSystem;
+				camera.updateProjectionMatrix();
+				camera.updateMatrixWorld();
+				shadow.camera.far = 1;
+				shadow.updateMatrices( light, camera );
 
-				let containsSlice = true;
+				for ( let i = 0; i < 4; i ++ ) {
 
-				for ( const depth of shadow._cascadeSplits.slice( i, i + 2 ) ) {
+					let containsSlice = true;
 
-					const halfHeight = Math.tan( camera.fov * Math.PI / 360 ) * depth;
+					for ( const depth of shadow._cascadeSplits.slice( i, i + 2 ) ) {
 
-					for ( const x of [ - 1, 1 ] ) {
+						const halfHeight = Math.tan( camera.fov * Math.PI / 360 ) * depth;
 
-						for ( const y of [ - 1, 1 ] ) {
+						for ( const x of [ - 1, 1 ] ) {
 
-							containsSlice = containsSlice && shadow.getFrustum( i ).containsPoint( new Vector3( x * halfHeight, y * halfHeight, - depth ) );
+							for ( const y of [ - 1, 1 ] ) {
+
+								containsSlice = containsSlice && shadow.getFrustum( i ).containsPoint( new Vector3( x * halfHeight, y * halfHeight, - depth ) );
+
+							}
 
 						}
 
 					}
 
-				}
+					assert.ok( containsSlice, `Cascade ${i} contains its view slice (coordinate system ${coordinateSystem})` );
 
-				assert.ok( containsSlice, `Cascade ${i} contains its view slice` );
+				}
 
 			}
 

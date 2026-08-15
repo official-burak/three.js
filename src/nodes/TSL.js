@@ -144,6 +144,7 @@ export * from './lighting/ShadowNode.js';
 export * from './lighting/ShadowFilterNode.js';
 export * from './lighting/PointShadowNode.js';
 export * from './lighting/PointLightNode.js';
+export * from './lighting/SunShadowNode.js';
 
 // pmrem
 export * from './pmrem/PMREMNode.js';

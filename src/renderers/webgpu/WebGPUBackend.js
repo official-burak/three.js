@@ -2251,7 +2251,7 @@ class WebGPUBackend extends Backend {
 
 			}
 
-			const pixelRatio = this.renderer.getPixelRatio();
+			const pixelRatio = context.renderTarget !== null ? 1 : this.renderer.getPixelRatio();
 
 			for ( let i = 0, len = cameras.length; i < len; i ++ ) {
 

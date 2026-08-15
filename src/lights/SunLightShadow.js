@@ -1,5 +1,6 @@
 import { LightShadow } from './LightShadow.js';
 import { OrthographicCamera } from '../cameras/OrthographicCamera.js';
+import { WebGPUCoordinateSystem } from '../constants.js';
 import { Frustum } from '../math/Frustum.js';
 import { Matrix4 } from '../math/Matrix4.js';
 import { Vector3 } from '../math/Vector3.js';
@@ -196,7 +197,7 @@ class SunLightShadow extends LightShadow {
 		// view frustum corners in light space; the rotation preserves distances,
 		// so the cascades can be fitted and snapped directly in this space
 
-		const zNear = viewCamera.reversedDepth ? 1 : - 1;
+		const zNear = viewCamera.reversedDepth ? 1 : ( viewCamera.coordinateSystem === WebGPUCoordinateSystem ? 0 : - 1 );
 		const inverseProjectionMatrix = viewCamera.projectionMatrixInverse;
 
 		let globalMaxZ = - Infinity;
